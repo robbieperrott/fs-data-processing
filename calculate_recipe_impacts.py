@@ -3,6 +3,7 @@ Foodsteps take home test
 Robbie Perrott March 2022
 Calculate the impacts of various recipes
 '''
+import sys
 from typing import SupportsRound
 from classes import Recipe, Ingredient
 from csv_utils import get_food_classes, get_recipe_entries
@@ -21,9 +22,14 @@ def main() -> None:
     calculates the impact of each recipe (if all ingredient impacts are available),
     and prints the results.
     '''
+
     # Get data from CSVs
-    food_classes = get_food_classes(FOOD_CLASSES_FILE_PATH)
-    recipe_entries = get_recipe_entries(RECIPES_FILE_PATH)
+    if sys.argv[1:] and sys.argv[1] == 'test':
+        food_classes = get_food_classes(TEST_FOOD_CLASSES_FILE_PATH)
+        recipe_entries = get_recipe_entries(TEST_RECIPES_FILE_PATH)
+    else:
+        food_classes = get_food_classes(FOOD_CLASSES_FILE_PATH)
+        recipe_entries = get_recipe_entries(RECIPES_FILE_PATH)
 
     # Create Recipe objects
     recipe_ids = list(set([recipe_entry.recipe_id for recipe_entry in recipe_entries]))
