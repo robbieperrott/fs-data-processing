@@ -1,0 +1,6 @@
+ID,Name,Impact / kg,Parent ID
+1,A,,2
+2,B,,3
+3,C,10,
+4,D,,5
+5,E,100,
