@@ -1,4 +1,7 @@
 Recipe ID,Recipe Name,Ingredient Name,Ingredient Weight / kg
-1,Test Recipe,a (),0.1
-1,Test Recipe,b,0.5
-1,Test Recipe,d,1
+1,Test Recipe,A,0.1
+1,Test Recipe,(b),0.5
+1,Test Recipe,c,1
+1,Test Recipe,D,1
+1,Test Recipe,E,1
+1,Test Recipe,F,1

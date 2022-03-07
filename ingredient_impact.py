@@ -4,20 +4,7 @@ with error handling.
 '''
 import string
 from classes import FoodClass, Ingredient
-
-
-class ImpactNotFoundError(Exception):
-    '''
-    Throw if an impact score cannot be found for an ingredient
-    I.e. if we traverse up the n-ary tree and reach a root node (a node with no parent_id)
-    that does not have an impact_per_kg score.
-    '''
-
-class FoodClassNotFoundError(Exception):
-    '''
-    Throw if a food class cannot be found for an ingredient
-    I.e. no food class name matched the ingredient's name
-    '''
+from errors import ImpactNotFound, FoodClassMatchNotFound, LoopInFoodClassTree, ParentNotFound
 
 
 def names_match(ingredient_name: str, food_class_name: str) -> bool:
@@ -42,16 +29,42 @@ def find_ingredient_impact(ingredient: Ingredient, food_classes: list[FoodClass]
     '''
     food_class = next((fc for fc in food_classes if names_match(ingredient.name, fc.name)), None)
     if food_class is None:
-        raise FoodClassNotFoundError
+        raise FoodClassMatchNotFound('Could not find a food class with a matching name')
 
-    # Traverse up the n-ary tree until a node with an impact_per_kg score is found
+    # Traverse up the n-ary tree until a node with an impact score is found,
+    # or until a root node is reached.
+    food_class_children_ids: list[int] = []
     while food_class.impact_per_kg is None and food_class.parent_id:
-        food_class = next(fc for fc in food_classes if fc.food_class_id == food_class.parent_id)
 
+        # Check that the parent_id of this food_class does not cause a loop in the tree
+        if food_class.parent_id in food_class_children_ids + [food_class.food_class_id]:
+            loop_path_list = food_class_children_ids + \
+                [food_class.food_class_id, food_class.parent_id]
+            loop_path_string = ' -> '.join([str(fc_id) for fc_id in loop_path_list])
+            raise LoopInFoodClassTree(f'There is a loop in the food class tree: {loop_path_string}')
+
+        # Find the parent food class if it exists
+        parent_food_class = \
+            next((fc for fc in food_classes if fc.food_class_id == food_class.parent_id), None)
+
+        # If the parent food class could not be found, throw an error
+        if parent_food_class is None:
+            raise ParentNotFound(
+                f'Could not find parent food class (ID {food_class.parent_id}) ' + \
+                f'for food class {food_class.name}'
+            )
+
+        # Traverse up the tree
+        food_class_children_ids.append(food_class.food_class_id)
+        food_class = parent_food_class
+
+    # If there is still no impact score at the root node, throw an error
     if food_class.impact_per_kg is None:
-        # We have reached a root node with no impact_per_kg score, so throw error.
-        raise ImpactNotFoundError
+        raise ImpactNotFound(
+          f'A root node (ID {food_class.food_class_id}) with no impact score was reached'
+        )
 
+    # Calculate impact
     impact = food_class.impact_per_kg * ingredient.weight_per_kg
 
     return impact

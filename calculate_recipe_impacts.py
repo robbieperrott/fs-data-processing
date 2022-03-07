@@ -7,7 +7,8 @@ import sys
 from typing import SupportsRound
 from classes import Recipe, Ingredient
 from csv_utils import get_food_classes, get_recipe_entries
-from ingredient_impact import FoodClassNotFoundError, ImpactNotFoundError, find_ingredient_impact
+from errors import FoodClassMatchNotFound, ImpactNotFound, LoopInFoodClassTree, ParentNotFound
+from ingredient_impact import find_ingredient_impact
 from print_feedback import print_recipe_error, print_recipe_success
 
 FOOD_CLASSES_FILE_PATH = './files/food_classes.csv'
@@ -49,10 +50,13 @@ def main() -> None:
             try:
                 ingredient_impact = find_ingredient_impact(ingredient, food_classes)
                 ingredient_impacts.append(ingredient_impact)
-            except FoodClassNotFoundError:
-                recipe_errors.append(f'No food class found for {ingredient.name}')
-            except ImpactNotFoundError:
-                recipe_errors.append(f'No impact score found for {ingredient.name}')
+            except (
+                FoodClassMatchNotFound,
+                ImpactNotFound,
+                ParentNotFound,
+                LoopInFoodClassTree
+            ) as exception:
+                recipe_errors.append(f'\033[1m{ingredient.name}\033[0m: ' + exception.args[0])
         if recipe_errors:
             print_recipe_error(recipe.name, recipe_errors)
         else:
