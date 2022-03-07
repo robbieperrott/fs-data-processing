@@ -1,15 +1,18 @@
 '''
 Foodsteps take home test
+Data processing task
 Robbie Perrott March 2022
 Calculate the impacts of various recipes
 '''
+
 import sys
 from typing import SupportsRound
+from checks import validate_food_class_tree
 from classes import Recipe, Ingredient
 from csv_utils import get_food_classes, get_recipe_entries
-from errors import FoodClassMatchNotFound, ImpactNotFound, LoopInFoodClassTree, ParentNotFound
+from errors import FoodClassMatchNotFound, ImpactNotFound, InvalidFoodClassTree
 from ingredient_impact import find_ingredient_impact
-from print_feedback import print_recipe_error, print_recipe_success
+from print_feedback import print_food_class_tree_error, print_recipe_error, print_recipe_success
 
 FOOD_CLASSES_FILE_PATH = './files/food_classes.csv'
 RECIPES_FILE_PATH = './files/recipes.csv'
@@ -32,6 +35,13 @@ def main() -> None:
         food_classes = get_food_classes(FOOD_CLASSES_FILE_PATH)
         recipe_entries = get_recipe_entries(RECIPES_FILE_PATH)
 
+    # Validate the food classes
+    try:
+        validate_food_class_tree(food_classes)
+    except InvalidFoodClassTree as exception:
+        print_food_class_tree_error(exception.args[0])
+        exit()
+
     # Create Recipe objects
     recipe_ids = list(set([recipe_entry.recipe_id for recipe_entry in recipe_entries]))
     recipes: list[Recipe] = []
@@ -52,9 +62,7 @@ def main() -> None:
                 ingredient_impacts.append(ingredient_impact)
             except (
                 FoodClassMatchNotFound,
-                ImpactNotFound,
-                ParentNotFound,
-                LoopInFoodClassTree
+                ImpactNotFound
             ) as exception:
                 recipe_errors.append(f'\033[1m{ingredient.name}\033[0m: ' + exception.args[0])
         if recipe_errors:

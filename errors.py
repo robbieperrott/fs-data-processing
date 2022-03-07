@@ -1,4 +1,6 @@
-'''Error classes'''
+'''
+Error classes
+'''
 
 
 class ImpactNotFound(Exception):
@@ -13,16 +15,9 @@ class FoodClassMatchNotFound(Exception):
     Throw if no food class name matched the ingredient's name
     '''
 
-class ParentNotFound(Exception):
+class InvalidFoodClassTree(Exception):
     '''
-    Throw if a food class has a parent ID that does not
-    match the ID of any food class
-    '''
-
-class LoopInFoodClassTree(Exception):
-    '''
-    Throw if it is discovered that the parent_id of a food class
-    is the id of the food class's children,
-    or if the parent_id of a food class is equal to its own id.
-    This is to prevent an infinite loop while moving up the tree.
+    Throw if the food class tree constructed from the CSV is invalid.
+    I.e. if there is a loop in the tree,
+    or if a parent ID is found that does not point to an existing food class.
     '''

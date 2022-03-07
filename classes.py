@@ -1,4 +1,6 @@
-'''Class definitions'''
+'''
+Class definitions
+'''
 
 
 class FoodClass:

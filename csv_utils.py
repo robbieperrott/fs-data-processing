@@ -2,6 +2,7 @@
 Some helper functions to extract data from the CSVs
 and to convert this data into FoodClass and RecipeEntry objects
 '''
+
 import csv
 from classes import FoodClass, RecipeEntry
 

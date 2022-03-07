@@ -18,7 +18,11 @@ The test files are located in `fs-data-processing/files/test/`. You can play aro
 
 ### Mypy
 
-I used mypy for type checking. If you run `mypy .` you should see something like `Success: no issues found in 5 source files`.
+I used mypy for type checking. If you run `mypy .` you should see something like `Success: no issues found in 7 source files`.
+
+### CSV Data Validation
+
+
 
 
 
