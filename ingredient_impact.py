@@ -34,7 +34,7 @@ def find_ingredient_impact(ingredient: Ingredient, food_classes: list[FoodClass]
 
     # Traverse up the n-ary tree until a node with an impact score is found,
     # or until a root node is reached.
-    while food_class.impact_per_kg is None and food_class.parent_id:
+    while food_class.impact_per_kg is None and food_class.parent_id is not None:
         food_class = next(fc for fc in food_classes if fc.food_class_id == food_class.parent_id)
 
     # If there is still no impact score at the root node, throw an error

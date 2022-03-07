@@ -4,7 +4,8 @@ and to convert this data into FoodClass and RecipeEntry objects
 '''
 
 import csv
-from classes import FoodClass, RecipeEntry
+from classes import FoodClass, Ingredient, Recipe, RecipeEntry
+from validation import validate_food_class_tree, validate_recipes
 
 
 def get_rows_from_csv(file_path) -> list[list[str]]:
@@ -19,7 +20,7 @@ def get_rows_from_csv(file_path) -> list[list[str]]:
         rows.append(row)
     return rows
 
-def get_food_classes(food_classes_file_path) -> list[FoodClass]:
+def get_valid_food_classes(food_classes_file_path) -> list[FoodClass]:
     '''
     Get data from food_classes.csv
     and convert this data into FoodClass objects
@@ -33,16 +34,33 @@ def get_food_classes(food_classes_file_path) -> list[FoodClass]:
         parent_id = int(row[3]) if row[3] else None
         food_class = FoodClass(food_class_id, food_class_name, impact, parent_id)
         food_classes.append(food_class)
+    # Validate the food class tree
+    validate_food_class_tree(food_classes)
     return food_classes
 
-def get_recipe_entries(recipes_file_path) -> list[RecipeEntry]:
+def get_valid_recipes(recipes_file_path) -> list[Recipe]:
     '''
     Get data from recipes.csv
-    and convert this data into RecipeEntry objects
+    and convert this data into Recipe objects
     '''
+    # Get RecipeEntry objects from CSV
     recipes_rows = get_rows_from_csv(recipes_file_path)
     recipe_entries: list[RecipeEntry] = []
     for row in recipes_rows:
         recipe_entry = RecipeEntry(int(row[0]), row[1], row[2], float(row[3]))
         recipe_entries.append(recipe_entry)
-    return recipe_entries
+
+    # Convert RecipeEntrys into Recipes
+    recipe_ids = list(set([recipe_entry.recipe_id for recipe_entry in recipe_entries]))
+    recipes: list[Recipe] = []
+    for recipe_id in recipe_ids:
+        ingredients = [Ingredient(entry.ingredient_name, entry.ingredient_weight_per_kg) \
+            for entry in recipe_entries if entry.recipe_id == recipe_id]
+        recipe_name = next(r.recipe_name for r in recipe_entries if r.recipe_id == recipe_id)
+        recipe = Recipe(recipe_id, recipe_name, ingredients)
+        recipes.append(recipe)
+
+    # Validate the recipes
+    validate_recipes(recipes)
+
+    return recipes

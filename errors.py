@@ -19,5 +19,12 @@ class InvalidFoodClassTree(Exception):
     '''
     Throw if the food class tree constructed from the CSV is invalid.
     I.e. if there is a loop in the tree,
-    or if a parent ID is found that does not point to an existing food class.
+    or if a parent ID is found that does not point to an existing food class,
+    or if a negative impact_per_kg score is found
+    '''
+
+class InvalidRecipes(Exception):
+    '''
+    Throw if one or more recipes is found to be invalid.
+    E.g. if there is a negative weight found.
     '''

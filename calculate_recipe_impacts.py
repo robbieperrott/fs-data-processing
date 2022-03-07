@@ -7,12 +7,11 @@ Calculate the impacts of various recipes
 
 import sys
 from typing import SupportsRound
-from checks import validate_food_class_tree
-from classes import Recipe, Ingredient
-from csv_utils import get_food_classes, get_recipe_entries
-from errors import FoodClassMatchNotFound, ImpactNotFound, InvalidFoodClassTree
+from csv_utils import get_valid_food_classes, get_valid_recipes
+from errors import FoodClassMatchNotFound, ImpactNotFound, InvalidFoodClassTree, InvalidRecipes
 from ingredient_impact import find_ingredient_impact
-from print_feedback import print_food_class_tree_error, print_recipe_error, print_recipe_success
+from print_feedback import (print_invalid_food_class_tree, print_invalid_recipes,
+    print_recipe_error, print_recipe_success)
 
 FOOD_CLASSES_FILE_PATH = './files/food_classes.csv'
 RECIPES_FILE_PATH = './files/recipes.csv'
@@ -27,30 +26,20 @@ def main() -> None:
     and prints the results.
     '''
 
-    # Get data from CSVs
-    if sys.argv[1:] and sys.argv[1] == 'test':
-        food_classes = get_food_classes(TEST_FOOD_CLASSES_FILE_PATH)
-        recipe_entries = get_recipe_entries(TEST_RECIPES_FILE_PATH)
-    else:
-        food_classes = get_food_classes(FOOD_CLASSES_FILE_PATH)
-        recipe_entries = get_recipe_entries(RECIPES_FILE_PATH)
-
-    # Validate the food classes
+    # Fetch and validate CSV data. Exit if data is invalid.
     try:
-        validate_food_class_tree(food_classes)
+        if sys.argv[1:] and sys.argv[1] == 'test':
+            food_classes = get_valid_food_classes(TEST_FOOD_CLASSES_FILE_PATH)
+            recipes = get_valid_recipes(TEST_RECIPES_FILE_PATH)
+        else:
+            food_classes = get_valid_food_classes(FOOD_CLASSES_FILE_PATH)
+            recipes = get_valid_recipes(RECIPES_FILE_PATH)
     except InvalidFoodClassTree as exception:
-        print_food_class_tree_error(exception.args[0])
-        exit()
-
-    # Create Recipe objects
-    recipe_ids = list(set([recipe_entry.recipe_id for recipe_entry in recipe_entries]))
-    recipes: list[Recipe] = []
-    for recipe_id in recipe_ids:
-        ingredients = [Ingredient(entry.ingredient_name, entry.ingredient_weight_per_kg) \
-            for entry in recipe_entries if entry.recipe_id == recipe_id]
-        recipe_name = next(r.recipe_name for r in recipe_entries if r.recipe_id == recipe_id)
-        recipe = Recipe(recipe_id, recipe_name, ingredients)
-        recipes.append(recipe)
+        print_invalid_food_class_tree(exception.args[0])
+        sys.exit()
+    except InvalidRecipes as exception:
+        print_invalid_recipes(exception.args[0])
+        sys.exit()
 
     # Calculate and print impacts for each recipe (if they can be calculated)
     for recipe in recipes:

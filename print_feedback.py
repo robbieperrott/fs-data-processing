@@ -19,9 +19,16 @@ def print_recipe_error(recipe_name: str, recipe_errors: list[str]) -> None:
         print(f'    {error}')
     print()
 
-def print_food_class_tree_error(error_messages: list[str]) -> None:
-    '''Print food class tree error message to console'''
+def print_invalid_food_class_tree(error_messages: list[str]) -> None:
+    '''Print invalid food class tree information to console'''
     print('\033[91m\033[1mInvalid food class tree\033[0m')
+    for error in error_messages:
+        print(f'    {error}')
+    print()
+
+def print_invalid_recipes(error_messages: list[str]) -> None:
+    '''Print invalid recipe information to console'''
+    print('\033[91m\033[1mInvalid recipe\033[0m')
     for error in error_messages:
         print(f'    {error}')
     print()
